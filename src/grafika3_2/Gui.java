@@ -34,7 +34,7 @@ public class Gui
 		ImagePanel panel = new ImagePanel(currImage);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Grafika3");
-		frame.setSize(800, 800);
+		frame.setSize(700, 700);
 		frame.getContentPane().add(panel);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(true);

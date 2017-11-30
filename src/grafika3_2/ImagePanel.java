@@ -38,8 +38,8 @@ class ImagePanel extends JPanel implements ActionListener
     {
     	image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
     	drawnImage = image;
-    	transImage = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
-    	transImageWithInterpolation = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
+    	transImage = new BufferedImage(700, 700, BufferedImage.TYPE_INT_RGB);
+    	transImageWithInterpolation = new BufferedImage(700, 700, BufferedImage.TYPE_INT_RGB);
     	x_res = image.getWidth();
     	y_res = image.getHeight();
     	x_resTrans = transImage.getWidth();
@@ -50,9 +50,9 @@ class ImagePanel extends JPanel implements ActionListener
     	transInter = new JButton("Interpolation");
     	
     	setLayout(null);
-    	normal.setBounds(490, 720, 90, 30);
-    	trans.setBounds(590, 720, 90, 30);
-    	transInter.setBounds(690, 720, 90, 30);
+    	normal.setBounds(390, 620, 90, 30);
+    	trans.setBounds(490, 620, 90, 30);
+    	transInter.setBounds(590, 620, 90, 30);
 
     	add(normal);
     	add(trans);
@@ -70,8 +70,8 @@ class ImagePanel extends JPanel implements ActionListener
     {
         this.image = image;
     	drawnImage = image;
-        transImage = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
-        transImageWithInterpolation = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
+        transImage = new BufferedImage(700, 700, BufferedImage.TYPE_INT_RGB);
+        transImageWithInterpolation = new BufferedImage(700, 700, BufferedImage.TYPE_INT_RGB);
     	x_res = image.getWidth();
     	y_res = image.getHeight();
     	x_resTrans = transImage.getWidth();
@@ -82,9 +82,9 @@ class ImagePanel extends JPanel implements ActionListener
     	transInter = new JButton("Interpolation");
     	
     	setLayout(null);
-    	normal.setBounds(490, 720, 90, 30);
-    	trans.setBounds(590, 720, 90, 30);
-    	transInter.setBounds(690, 720, 90, 30);
+    	normal.setBounds(390, 620, 90, 30);
+    	trans.setBounds(490, 620, 90, 30);
+    	transInter.setBounds(590, 620, 90, 30);
     	
     	add(normal);
     	add(trans);
