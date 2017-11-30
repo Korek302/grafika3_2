@@ -2,17 +2,20 @@ package grafika3_2;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-class ImagePanel extends JPanel 
+class ImagePanel extends JPanel implements ActionListener
 {
 	static Graphics2D g2d;
     private BufferedImage image;
@@ -20,6 +23,10 @@ class ImagePanel extends JPanel
     private BufferedImage transImageWithInterpolation;
     
     private BufferedImage drawnImage;
+    
+    private JButton normal;
+    private JButton trans;
+    private JButton transInter;
     
     int x_res;
     int y_res;
@@ -29,30 +36,64 @@ class ImagePanel extends JPanel
     
     public ImagePanel()
     {
-    	drawnImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
-    	
     	image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
+    	drawnImage = image;
     	transImage = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
     	transImageWithInterpolation = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
     	x_res = image.getWidth();
     	y_res = image.getHeight();
     	x_resTrans = transImage.getWidth();
     	y_resTrans = transImage.getHeight();
+    	
+    	normal = new JButton("Normal");
+    	trans = new JButton("Transformation");
+    	transInter = new JButton("Interpolation");
+    	
+    	setLayout(null);
+    	normal.setBounds(490, 720, 90, 30);
+    	trans.setBounds(590, 720, 90, 30);
+    	transInter.setBounds(690, 720, 90, 30);
+
+    	add(normal);
+    	add(trans);
+    	add(transInter);
+    	
+    	normal.addActionListener(this);
+    	trans.addActionListener(this);
+    	transInter.addActionListener(this);
+    	
     	transform();
     	transformWithInterpolation();
     }
     
     public ImagePanel(BufferedImage image) 
     {
-    	drawnImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
-    	
         this.image = image;
+    	drawnImage = image;
         transImage = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
         transImageWithInterpolation = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
     	x_res = image.getWidth();
     	y_res = image.getHeight();
     	x_resTrans = transImage.getWidth();
     	y_resTrans = transImage.getHeight();
+    	
+    	normal = new JButton("Normal");
+    	trans = new JButton("Transformation");
+    	transInter = new JButton("Interpolation");
+    	
+    	setLayout(null);
+    	normal.setBounds(490, 720, 90, 30);
+    	trans.setBounds(590, 720, 90, 30);
+    	transInter.setBounds(690, 720, 90, 30);
+    	
+    	add(normal);
+    	add(trans);
+    	add(transInter);
+    	
+    	normal.addActionListener(this);
+    	trans.addActionListener(this);
+    	transInter.addActionListener(this);
+    	
     	transform();
     	transformWithInterpolation();
     }
@@ -129,7 +170,7 @@ class ImagePanel extends JPanel
 		
 		try
 		{
-			ImageIO.write(transImageWithInterpolation, "png", new File("cat2TransWInte.png"));
+			ImageIO.write(transImageWithInterpolation, "png", new File("res/cat2TransWInte.png"));
 			System.out.println("Transformed image with interpolation created successfully!");
 		}
 		catch(IOException e)
@@ -182,7 +223,7 @@ class ImagePanel extends JPanel
 		
 		try
 		{
-			ImageIO.write(transImage, "png", new File("cat2Trans.png"));
+			ImageIO.write(transImage, "png", new File("res/cat2Trans.png"));
 			System.out.println("Transformed image created successfully!");
 		}
 		catch(IOException e)
@@ -219,11 +260,11 @@ class ImagePanel extends JPanel
 		String formFile = null;
 		try 
 		{
-			formFile = readFile("transMatrix.txt");
+			formFile = readFile("res/transMatrix.txt");
 		} 
 		catch (IOException e) 
 		{
-			System.out.println("Error while loading file (vectorImage.txt)");
+			System.out.println("Error while loading file (transMatrix.txt)");
 		}
 		
 		String[] values = formFile.split(",");
@@ -332,7 +373,8 @@ class ImagePanel extends JPanel
     {
     	super.paintComponent(g);
 		g2d = (Graphics2D) g;
-		g2d.drawImage(transImage, 0, 0, transImage.getWidth(), transImage.getHeight(), this);
+		g2d.drawImage(drawnImage, 0, 0, drawnImage.getWidth(), drawnImage.getHeight(), this);
+		//g2d.drawImage(transImage, 0, 0, transImage.getWidth(), transImage.getHeight(), this);
 		//g2d.drawImage(transImageWithInterpolation, 0, 0, transImageWithInterpolation.getWidth(), transImageWithInterpolation.getHeight(), this);
 		//g2d.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), this);
     }
@@ -358,5 +400,24 @@ class ImagePanel extends JPanel
 		green = green & 0x000000FF;
 		blue = blue & 0x000000FF;
 		return (red << 16) + (green << 8) + blue;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		Object source = e.getSource();
+		if(source == normal)
+		{
+			drawnImage = image;
+		}
+		else if(source == trans)
+		{
+			drawnImage = transImage;
+		}
+		else if(source == transInter)
+		{
+			drawnImage = transImageWithInterpolation;
+		}
+		repaint();
 	}
 }

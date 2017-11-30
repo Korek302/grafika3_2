@@ -24,7 +24,7 @@ public class Gui
 		
 		try
 		{
-			currImage = ImageIO.read(new File("cat2.png"));
+			currImage = ImageIO.read(new File("res/cat2.png"));
 		}
 		catch (IOException e)
 		{
