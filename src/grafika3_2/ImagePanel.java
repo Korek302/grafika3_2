@@ -17,6 +17,9 @@ class ImagePanel extends JPanel
 	static Graphics2D g2d;
     private BufferedImage image;
     private BufferedImage transImage;
+    private BufferedImage transImageWithInterpolation;
+    
+    private BufferedImage drawnImage;
     
     int x_res;
     int y_res;
@@ -26,30 +29,113 @@ class ImagePanel extends JPanel
     
     public ImagePanel()
     {
+    	drawnImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
+    	
     	image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
     	transImage = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
+    	transImageWithInterpolation = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
     	x_res = image.getWidth();
     	y_res = image.getHeight();
     	x_resTrans = transImage.getWidth();
     	y_resTrans = transImage.getHeight();
     	transform();
+    	transformWithInterpolation();
     }
     
     public ImagePanel(BufferedImage image) 
     {
+    	drawnImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
+    	
         this.image = image;
         transImage = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
+        transImageWithInterpolation = new BufferedImage(800, 800, BufferedImage.TYPE_INT_RGB);
     	x_res = image.getWidth();
     	y_res = image.getHeight();
     	x_resTrans = transImage.getWidth();
     	y_resTrans = transImage.getHeight();
     	transform();
+    	transformWithInterpolation();
     }
     
     public void setImage(BufferedImage newImg)
     {
     	image = newImg;
     	transform();
+    	transformWithInterpolation();
+    }
+    
+    public void transformWithInterpolation()
+    {
+    	double[][] transMatrix = loadMatrix();
+		double[][] transMatrixInv = inverse(transMatrix);
+		
+		for(int i = 0; i < x_resTrans; i++)
+		{
+			for(int j = 0; j < y_resTrans; j++)
+			{
+				transImageWithInterpolation.setRGB(i, j, int2RGB(255,255,255));
+			}
+		}
+		
+		for(int i = 0; i < x_resTrans; i++)
+		{
+			for(int j = 0; j < y_resTrans; j++)
+			{
+				double[] currPoint = new double[3];
+				currPoint[0] = i;
+				currPoint[1] = j;
+				currPoint[2] = 1;
+				double[] originalPoint = new double[3];
+				for(int k = 0; k < transMatrix[0].length; k++)
+				{
+					double val = 0;
+					for(int l = 0; l < transMatrix.length; l++)
+					{
+						val += currPoint[l] * transMatrixInv[l][k];
+					}
+					originalPoint[k] = val;
+				}
+				try
+				{
+					int xFloor = (int) Math.floor(originalPoint[0]);
+					int xCel = (int) Math.ceil(originalPoint[0]);
+					int yFloor = (int) Math.floor(originalPoint[1]);
+					int yCel = (int) Math.ceil(originalPoint[1]);
+					
+					double alfa = originalPoint[0] - (int)originalPoint[0];
+					double kAr = (1 - alfa) * getR(image.getRGB(xFloor, yFloor)) + alfa * getR(image.getRGB(xCel, yFloor));
+					double kBr = (1 - alfa) * getR(image.getRGB(xFloor, yCel)) + alfa * getR(image.getRGB(xCel, yCel));
+					
+					double kAg = (1 - alfa) * getG(image.getRGB(xFloor, yFloor)) + alfa * getG(image.getRGB(xCel, yFloor));
+					double kBg = (1 - alfa) * getG(image.getRGB(xFloor, yCel)) + alfa * getG(image.getRGB(xCel, yCel));
+					
+					double kAb = (1 - alfa) * getB(image.getRGB(xFloor, yFloor)) + alfa * getB(image.getRGB(xCel, yFloor));
+					double kBb = (1 - alfa) * getB(image.getRGB(xFloor, yCel)) + alfa * getB(image.getRGB(xCel, yCel));
+					
+					double beta = originalPoint[1] - (int)originalPoint[1];
+					
+					int kDr = (int) Math.round((1-beta) * kAr + beta * kBr);
+					int kDg = (int) Math.round((1-beta) * kAg + beta * kBg);
+					int kDb = (int) Math.round((1-beta) * kAb + beta * kBb);
+					
+					transImageWithInterpolation.setRGB(i, j, int2RGB(kDr, kDg, kDb));
+				}
+				catch(ArrayIndexOutOfBoundsException e)
+				{
+					;
+				}
+			}
+		}
+		
+		try
+		{
+			ImageIO.write(transImageWithInterpolation, "png", new File("cat2TransWInte.png"));
+			System.out.println("Transformed image with interpolation created successfully!");
+		}
+		catch(IOException e)
+		{
+			System.out.println("The image cannot be stored");
+		}
     }
     
     public void transform()
@@ -76,7 +162,7 @@ class ImagePanel extends JPanel
 				double[] originalPoint = new double[3];
 				for(int k = 0; k < transMatrix[0].length; k++)
 				{
-					int val = 0;
+					double val = 0;
 					for(int l = 0; l < transMatrix.length; l++)
 					{
 						val += currPoint[l] * transMatrixInv[l][k];
@@ -247,7 +333,23 @@ class ImagePanel extends JPanel
     	super.paintComponent(g);
 		g2d = (Graphics2D) g;
 		g2d.drawImage(transImage, 0, 0, transImage.getWidth(), transImage.getHeight(), this);
+		//g2d.drawImage(transImageWithInterpolation, 0, 0, transImageWithInterpolation.getWidth(), transImageWithInterpolation.getHeight(), this);
 		//g2d.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), this);
+    }
+    
+    private int getR(int color)
+    {
+    	return (color>>16) & 0xff;
+    }
+    
+    private int getG(int color)
+    {
+    	return (color>>8) & 0xff;
+    }
+    
+    private int getB(int color)
+    {
+    	return color & 0xff;
     }
     
     private int int2RGB( int red, int green, int blue)
